@@ -1,6 +1,6 @@
 # Upload script for Trunk Recorder Pro
 
-Runs a script of yours on each call [Trunk Recorder Pro](https://github.com/TrunkRecorder/trunk-recorder-lite)
+Runs a script of yours on each call [Trunk Recorder Pro](https://github.com/TrunkRecorder/trunk-recorder-pro)
 records: to copy it to a server, upload it somewhere no plugin does, or
 anything else. It does what Trunk Recorder's `uploadScript` setting does, and
 existing scripts work unchanged.
