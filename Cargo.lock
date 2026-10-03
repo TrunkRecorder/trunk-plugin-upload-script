@@ -173,9 +173,9 @@ dependencies = [
 
 [[package]]
 name = "trunk-recorder-plugin"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb7511acc5ecb6e3c36ee55ed83d195aff6f5fb3481d07a4061f6ba03f0c8e63"
+checksum = "3a3b387d8386dffdf43b222300063bc8256127b6bd769864d02ba3390f334b53"
 dependencies = [
  "schemars",
  "serde",

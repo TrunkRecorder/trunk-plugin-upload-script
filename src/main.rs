@@ -72,7 +72,7 @@ impl Plugin for UploadScript {
             let script = if own.is_empty() { all.clone() } else { Some(Script::parse(own, timeout).map_err(|e| format!("{}: {e}", s.short_name))?) };
             if let Some(script) = script {
                 host.info(format!("{}: running {script}", s.short_name));
-                scripts.insert(s.index, script);
+                scripts.insert(s.short_name.clone(), script);
             }
         }
         if scripts.is_empty() {
@@ -85,7 +85,8 @@ impl Plugin for UploadScript {
         let opts = QueueOptions { noun: "script run", ..QueueOptions::saved_in(&setup.data_dir) };
         let log = host.clone();
         let queue = CallQueue::start(host, opts, move |call: &ConcludedCall| {
-            let Some(script) = scripts.get(&call.system) else {
+            // By short name, a system's identity: a call saved for a later run still finds its system.
+            let Some(script) = scripts.get(&call.call.short_name) else {
                 return Attempt::Skip("no script for this system".into());
             };
             // (Where it would be, as Trunk Recorder passes it, when it couldn't be made.)
