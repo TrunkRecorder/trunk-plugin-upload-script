@@ -10,7 +10,7 @@ use std::time::Duration;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use trunk_recorder_plugin::{format, topic, Attempt, CallQueue, ConcludedCall, Host, Manifest, Plugin, QueueOptions, Setup};
+use trunk_recorder_plugin::{Attempt, CallQueue, ConcludedCall, Host, Manifest, Plugin, QueueOptions, Setup, format, topic};
 
 use script::Script;
 
@@ -112,10 +112,10 @@ fn main() {
 #[cfg(all(test, unix))]
 mod tests {
     use super::*;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use std::path::{Path, PathBuf};
     use trunk_recorder_plugin::testing;
-    use trunk_recorder_plugin::{HostMessage, Outcome, EXIT_CONFIG};
+    use trunk_recorder_plugin::{EXIT_CONFIG, HostMessage, Outcome};
 
     /// An executable shell script in `dir`.
     fn script(dir: &Path, name: &str, body: &str) -> PathBuf {
