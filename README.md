@@ -53,8 +53,17 @@ Paste each system's `uploadScript` into its **Script** (or set one for all of
 them), with the script's full path in place of `./`. The arguments are the
 same, in the same order.
 
-The call's files are never deleted after the script runs: there's no
-`audioArchive` setting, so a script that wants the files gone deletes them.
+What becomes of the call's files afterwards is up to the recorder's
+`audioArchive`, `callLog` and `archiveFilesOnFailure` settings, as in Trunk
+Recorder: once the script and every other plugin taking calls have reported
+how the call went, the recorder deletes the audio unless `audioArchive` is on
+and the JSON unless `callLog` is on, and keeps everything when one of them
+failed and `archiveFilesOnFailure` is on (the default). A call waiting to be
+tried again (exit status 75) keeps its files until it's done. So the files
+are there for as long as the script runs, but not after: a script that hands
+them to something running in the background should copy them first, and one
+that wants them kept should turn `audioArchive` (and `callLog`) on rather
+than move them away.
 
 ## Building
 
