@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- A system can override the script and the time limit (a script set in the system's own settings still comes first).
+- Built with trunk-recorder-plugin 0.3.0.
+
 ## [0.1.0]
 
 - Runs a script on each recorded call with the call's WAV, JSON and M4A paths,

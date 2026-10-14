@@ -63,17 +63,19 @@ impl Plugin for UploadScript {
     }
 
     fn start(host: Host, setup: Setup<Config, SystemConfig>) -> Result<Self, String> {
-        let timeout = Duration::from_secs(setup.config.timeout_seconds.clamp(1, 3600) as u64);
-        let all = setup.config.script.trim();
-        let all = if all.is_empty() { None } else { Some(Script::parse(all, timeout)?) };
         let mut scripts = HashMap::new();
         for s in &setup.systems {
+            // The system's own script, else the plugin's as it is for this
+            // system (which can override it, and the time limit).
+            let timeout = Duration::from_secs(s.settings.timeout_seconds.clamp(1, 3600) as u64);
             let own = s.config.as_ref().map_or("", |c| c.script.trim());
-            let script = if own.is_empty() { all.clone() } else { Some(Script::parse(own, timeout).map_err(|e| format!("{}: {e}", s.short_name))?) };
-            if let Some(script) = script {
-                host.info(format!("{}: running {script}", s.short_name));
-                scripts.insert(s.short_name.clone(), script);
+            let line = if own.is_empty() { s.settings.script.trim() } else { own };
+            if line.is_empty() {
+                continue;
             }
+            let script = Script::parse(line, timeout).map_err(|e| format!("{}: {e}", s.short_name))?;
+            host.info(format!("{}: running {script}", s.short_name));
+            scripts.insert(s.short_name.clone(), script);
         }
         if scripts.is_empty() {
             return Err("Set the script to run.".into());
@@ -115,7 +117,7 @@ mod tests {
     use serde_json::{Value, json};
     use std::path::{Path, PathBuf};
     use trunk_recorder_plugin::testing;
-    use trunk_recorder_plugin::{EXIT_CONFIG, HostMessage, Outcome};
+    use trunk_recorder_plugin::{EXIT_CONFIG, HostMessage, Outcome, SystemInfo};
 
     /// An executable shell script in `dir`.
     fn script(dir: &Path, name: &str, body: &str) -> PathBuf {
@@ -217,5 +219,30 @@ mod tests {
             let msg = out.status().unwrap().1;
             assert!(msg.contains(why), "{msg}");
         }
+    }
+
+    /// A system can override the plugin's script (its own still comes first).
+    #[test]
+    fn a_system_overrides_the_script() {
+        let dir = testing::temp_dir("upload-script");
+        let all = script(&dir, "all.sh", "echo all >> \"$(dirname \"$0\")/ran\"");
+        let other = script(&dir, "other.sh", "echo other >> \"$(dirname \"$0\")/ran\"");
+        let mut h = testing::hello(&dir, json!({ "script": all.display().to_string() }));
+        h.systems.push(SystemInfo {
+            index: 1,
+            short_name: "sys2".into(),
+            kind: "p25".into(),
+            settings: json!({ "script": other.display().to_string() }),
+            ..Default::default()
+        });
+        let out = testing::run::<UploadScript>([
+            HostMessage::Hello(h),
+            HostMessage::CallConcluded(testing::call(&dir, "sys1", 1)),
+            HostMessage::CallConcluded(testing::call(&dir, "sys2", 2)),
+        ]);
+        assert!(out.results().iter().all(|r| r.1 == Outcome::Ok), "{:?}", out.results());
+        let mut ran: Vec<String> = std::fs::read_to_string(dir.join("ran")).unwrap().lines().map(String::from).collect();
+        ran.sort();
+        assert_eq!(ran, ["all", "other"]);
     }
 }
