@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.2]
 
 - A system can override the script and the time limit (a script set in the system's own settings still comes first).
 - Built with trunk-recorder-plugin 0.3.0.
