@@ -56,10 +56,12 @@ impl Script {
         Ok(Script { program, args: words, timeout, text: text.to_string() })
     }
 
-    /// Run it with `files` after its own arguments, in `cwd`; `call`: for the log.
-    pub fn run(&self, files: &[&Path], cwd: &Path, log: &Host, call: &str) -> Attempt {
+    /// Run it with `files` after its own arguments and `env` in its
+    /// environment, in `cwd`; `call`: for the log.
+    pub fn run(&self, files: &[&Path], env: &[(&str, String)], cwd: &Path, log: &Host, call: &str) -> Attempt {
         let mut c = Command::new(&self.program);
         c.args(&self.args).args(files).current_dir(cwd).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped());
+        c.envs(env.iter().map(|(k, v)| (k, v)));
         // A group of its own, so what it starts can be stopped with it.
         #[cfg(unix)]
         std::os::unix::process::CommandExt::process_group(&mut c, 0);

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3]
+
+- A system's sites: Trunk Recorder Pro now has systems with several sites, and a
+  call heard on more than one is saved once, in the system's folder. Scripts get
+  `SHORT_NAME`, `SITE` (the site the call was kept from) and `TALKGROUP` in
+  their environment, so one can tell sites apart without reading the JSON.
+- Built with trunk-recorder-plugin 0.4.0.
+
 ## [0.1.2]
 
 - A system can override the script and the time limit (a script set in the system's own settings still comes first).

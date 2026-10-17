@@ -93,7 +93,10 @@ impl Plugin for UploadScript {
             };
             // (Where it would be, as Trunk Recorder passes it, when it couldn't be made.)
             let m4a = call.files.m4a.clone().unwrap_or_else(|| call.files.wav.with_extension("m4a"));
-            script.run(&[&call.files.wav, &call.files.json, &m4a], &cwd, &log, &call.path)
+            // Which system, site and talkgroup, without reading the JSON (a system's sites share its folder).
+            let c = &call.call;
+            let env = [("SHORT_NAME", c.short_name.clone()), ("SITE", c.site.clone()), ("TALKGROUP", c.talkgroup.to_string())];
+            script.run(&[&call.files.wav, &call.files.json, &m4a], &env, &cwd, &log, &call.path)
         });
         Ok(UploadScript { queue })
     }
@@ -154,6 +157,17 @@ mod tests {
             cwd.display().to_string(),
         ];
         assert_eq!(args.lines().collect::<Vec<_>>(), want);
+    }
+
+    /// A call heard on several sites of a system is its system's: the site it was kept from comes as SITE.
+    #[test]
+    fn the_system_site_and_talkgroup_in_its_environment() {
+        let dir = testing::temp_dir("upload-script");
+        let s = script(&dir, "up.sh", r#"echo "$SHORT_NAME $SITE $TALKGROUP" > "$(dirname "$0")/env.txt""#);
+        let mut call = testing::call(&dir, "sys1", 101);
+        call.call.site = "south".into();
+        testing::run::<UploadScript>([hello(&dir, json!({ "script": s }), Value::Null), HostMessage::CallConcluded(call)]);
+        assert_eq!(std::fs::read_to_string(dir.join("env.txt")).unwrap(), "sys1 south 101\n");
     }
 
     #[test]
