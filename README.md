@@ -35,6 +35,11 @@ The M4A is there when the recorder has an M4A encoder (built into macOS;
 install [ffmpeg](https://ffmpeg.org) elsewhere). Without one, the third path
 is where it would be, and there's no file there.
 
+In its environment: `SHORT_NAME` (the call's system), `SITE` (the site it was
+kept from) and `TALKGROUP`, the same as in its JSON. A system can have several
+sites, and a call heard on more than one is saved once, in the system's folder:
+a script that told sites apart by their short name or folder can use `SITE`.
+
 The script runs in the recorder's capture folder.
 
 ## When it fails
@@ -51,7 +56,9 @@ are kept, and run again when it starts. (Trunk Recorder never retries.)
 
 Paste each system's `uploadScript` into its **Script** (or set one for all of
 them), with the script's full path in place of `./`. The arguments are the
-same, in the same order.
+same, in the same order. Trunk Recorder systems that are sites of one system
+(`multiSite`) are one system here, with one script: it can tell them apart by
+`SITE`.
 
 What becomes of the call's files afterwards is up to the recorder's
 `audioArchive`, `callLog` and `archiveFilesOnFailure` settings, as in Trunk
