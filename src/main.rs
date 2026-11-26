@@ -177,7 +177,8 @@ mod tests {
         let out = testing::run::<UploadScript>([hello(&dir, json!({ "script": s }), Value::Null), HostMessage::CallConcluded(testing::call(&dir, "sys1", 5))]);
         let r = out.results();
         assert_eq!(r[0].1, Outcome::Failed);
-        assert!(r[0].2.contains("exit status 3") && r[0].2.contains("connection refused"), "{}", r[0].2);
+        assert_eq!(r[0].2, "the script ended with exit status 3");
+        assert!(out.logs().iter().any(|(_, l)| l.ends_with("scp: connection refused")), "what it said is logged: {:?}", out.logs());
     }
 
     #[test]
