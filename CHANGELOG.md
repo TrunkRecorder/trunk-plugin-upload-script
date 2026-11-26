@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- **Short, stable reasons for failed calls.** Trunk Recorder Pro after 0.5.1 counts a plugin's calls by the
+  reason it gives, on its card: a failed call is now "the script ended with exit status N" (or "was
+  killed", or "asked to try again later") without the script's last line. What the script printed is in the
+  log, as before.
+
 ## [0.1.4]
 
 - Built with trunk-recorder-plugin 0.5.0, for Trunk Recorder Pro v0.2.0: systems are numbered

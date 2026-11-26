@@ -107,17 +107,15 @@ impl Script {
             }
             return Attempt::Done { url: String::new() };
         }
+        // What it said is the log's; the reason is the same for every call it fails, as the
+        // plugin's card counts calls by it.
         for l in out.lines().chain(err.lines()).filter(|l| !l.trim().is_empty()) {
             log.warn(format!("{call}: {l}"));
         }
-        // What it said last, on stderr if anything.
-        let last = |s: &str| s.lines().rev().find(|l| !l.trim().is_empty()).map(|l| l.trim().to_string());
-        let said = last(&err).or_else(|| last(&out)).unwrap_or_default();
-        let said = if said.is_empty() { String::new() } else { format!(": {}", said.chars().take(200).collect::<String>()) };
         match status.code() {
-            Some(TRY_AGAIN) => Attempt::Retry(format!("the script asked to try again later{said}")),
-            Some(code) => Attempt::Fail(format!("the script ended with exit status {code}{said}")),
-            None => Attempt::Fail(format!("the script was killed{said}")),
+            Some(TRY_AGAIN) => Attempt::Retry("the script asked to try again later".into()),
+            Some(code) => Attempt::Fail(format!("the script ended with exit status {code}")),
+            None => Attempt::Fail("the script was killed".into()),
         }
     }
 }
