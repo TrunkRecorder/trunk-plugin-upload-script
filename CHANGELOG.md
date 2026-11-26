@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.5]
 
 - **Short, stable reasons for failed calls.** Trunk Recorder Pro after 0.5.1 counts a plugin's calls by the
   reason it gives, on its card: a failed call is now "the script ended with exit status N" (or "was
